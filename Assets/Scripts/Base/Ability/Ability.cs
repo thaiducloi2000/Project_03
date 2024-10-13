@@ -15,23 +15,22 @@ public struct AbilityInfor
     public int rangeUse;
 }
 
+
 public abstract class Ability : IAbility
 {
-    protected IObjectPool<GameObject> poolVfx;
-    protected GameObject _vfx;
     protected AbilityInfor _infor;
-    public Ability(AbilityInfor infor, GameObject vfx = null,bool CheckCondition = true,int defaultCapacity = 10, int maxSize = 150) 
+    public Ability(AbilityInfor infor)
     {
         _infor = infor;
-        _vfx = vfx;
-        poolVfx = new ObjectPool<GameObject>(OnCreate, OnGetFromPool, OnReleaseToPool, OnDestroyPooledObject, CheckCondition, defaultCapacity, maxSize);
     }
 
-    public abstract void UseAbility(ITarget target);
+    public abstract void UpgradeAbility(AbilityInfor newInfor);
 
-    protected abstract GameObject OnCreate();
-    protected abstract void OnReleaseToPool(GameObject pooledObject);
-    protected abstract void OnGetFromPool(GameObject pooledObject);
+    public abstract void UseAbility(ITarget caster, ITarget target);
 
-    protected abstract void OnDestroyPooledObject(GameObject pooledObject);
+    protected abstract T OnCreate<T>() where T : Component;
+    protected abstract void OnReleaseToPool<T>(T pooledObject) where T : Component;
+    protected abstract void OnGetFromPool<T>(T pooledObject) where T : Component;
+
+    protected abstract void OnDestroyPooledObject<T>(T pooledObject) where T : Component;
 }

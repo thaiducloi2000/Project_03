@@ -14,6 +14,7 @@ public struct TargetStat
 
 public interface ITarget
 {
+    public Vector3 CenterPosition { get; }
     public Vector3 Position { get;}
     public Transform TargetTransform { get;}
     public TargetStat TargetStart { get; }

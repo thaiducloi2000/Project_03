@@ -1,9 +1,10 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputHandler))]
-public class PlayerMovementHandler : MonoBehaviour
+public class PlayerMovementHandler : MonoBehaviour, ITarget
 {
     [Tooltip("Move speed of the character in m/s")]
     [SerializeField] private float MoveSpeed = 2.0f;
@@ -15,6 +16,15 @@ public class PlayerMovementHandler : MonoBehaviour
     [SerializeField] private float SpeedChangeRate = 10.0f;
     //[SerializeField] private float scanRadius = 20f;
     [SerializeField] private LayerMask scanLayer;
+
+    [SerializeField] private Test target;
+
+    [SerializeField] private Projectile bullet;
+    [SerializeField] private AbilityInfor infor;
+    [SerializeField] private Transform centerPoint;
+    [SerializeField] private CinemachineController mainCamera;
+    [SerializeField] private AbilityType type;
+
     private PlayerInputHandler _input;
     private float _speed;
     private float _targetRotation = 0.0f;
@@ -24,22 +34,41 @@ public class PlayerMovementHandler : MonoBehaviour
     private GameObject _mainCamera;
     private CharacterController _controller;
 
+    public Vector3 Position => TargetTransform.position;
+
+    public Transform TargetTransform => this.transform;
+
+    public TargetStat TargetStart => throw new System.NotImplementedException();
+
+    public Vector3 CenterPosition => centerPoint.position;
+
+    private ProjecttileAbility ability;
+
     private void Awake()
     {
         if (_mainCamera == null)
         {
-            _mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
+            _mainCamera = Helper.MainCamera.gameObject;
         }
+        mainCamera = Helper.MainCamera.GetComponent<CinemachineController>();
     }
 
     private void Start()
     {
         _controller = GetComponent<CharacterController>();
         _input = GetComponent<PlayerInputHandler>();
+        ability = new ProjecttileAbility(infor, new SpreadTrajector(infor.amountWave, 60f), bullet);
+
+        _input.OnChangeCameraCallBack += mainCamera.ChangeCamera;
+        _input.OnAiming += mainCamera.AimChange;
     }
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            ability.UseAbility(this, target);
+        }
         Move();
     }
 
